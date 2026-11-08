@@ -1,1 +1,81 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+  --pink-main: #FF85A2;
+  --pink-dark: #E05A7A;
+  --lilac-main: #B388EB;
+  --lilac-dark: #8E5EC9;
+  --mint-main: #56E39F;
+  --mint-dark: #34B877;
+  --sun-main: #FFD166;
+  --sun-dark: #E5AF36;
+  --bg-gradient: linear-gradient(160deg, #FFF0F5 0%, #F3E8FF 50%, #E8FDF5 100%);
+  --text-dark: #4A354F;
+}
+
+* {
+  box-sizing: border-box;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  margin: 0;
+  font-family: 'Fredoka', sans-serif;
+  background: var(--bg-gradient);
+  color: var(--text-dark);
+  min-height: 100vh;
+}
+
+.card-magic {
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 28px;
+  border: 4px solid #FFE3EC;
+  box-shadow: 0 10px 25px rgba(179, 136, 235, 0.18);
+  padding: 1.25rem;
+}
+
+.btn-3d {
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 700;
+  border: none;
+  border-radius: 22px;
+  padding: 12px 20px;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 1.1rem;
+
+  &:active {
+    transform: translateY(5px);
+  }
+}
+
+.btn-pink {
+  background: var(--pink-main);
+  color: #fff;
+  box-shadow: 0 6px 0 var(--pink-dark);
+  &:active { box-shadow: 0 1px 0 var(--pink-dark); }
+}
+
+.btn-lilac {
+  background: var(--lilac-main);
+  color: #fff;
+  box-shadow: 0 6px 0 var(--lilac-dark);
+  &:active { box-shadow: 0 1px 0 var(--lilac-dark); }
+}
+
+.btn-mint {
+  background: var(--mint-main);
+  color: #1F4E37;
+  box-shadow: 0 6px 0 var(--mint-dark);
+  &:active { box-shadow: 0 1px 0 var(--mint-dark); }
+}
+
+.btn-sun {
+  background: var(--sun-main);
+  color: #5C4308;
+  box-shadow: 0 6px 0 var(--sun-dark);
+  &:active { box-shadow: 0 1px 0 var(--sun-dark); }
+}
