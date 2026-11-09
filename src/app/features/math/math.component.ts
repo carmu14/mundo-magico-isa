@@ -1,7 +1,8 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, effect, untracked, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { VoiceService } from '../../core/services/voice.service';
 import { ProgressService } from '../../core/services/progress.service';
+import { ActivityService } from '../../core/services/activity.service';
 
 interface CountItem {
   index: number;
@@ -104,6 +105,8 @@ interface CountItem {
 export class MathComponent implements OnInit {
   private voice = inject(VoiceService);
   private progress = inject(ProgressService);
+  // Inyección del servicio de actividades (singleton en root, sin declararlo en providers del componente)
+  readonly activityService = inject(ActivityService);
 
   private readonly emojis = ['🍓', '🦄', '🧁', '🦋', '🌸', '🐱'];
   readonly mode = signal<'contar' | 'sumar'>('contar');
@@ -115,18 +118,46 @@ export class MathComponent implements OnInit {
   readonly options = signal<number[]>([]);
   readonly questionText = signal<string>('');
   readonly feedback = signal<string>('');
+  // Signals internos para almacenar el rango mínimo y máximo obtenido desde Firestore
+  private readonly minRange = signal<number>(1);
+  private readonly maxRange = signal<number>(4);
   private countedSoFar = 0;
 
+  constructor() {
+    // Efecto reactivo que escucha cuando actividadesMath() recibe datos de Firestore
+    effect(() => {
+      const actividades = this.activityService.actividadesMath();
+      const cargando = this.activityService.cargando();
+      if (!cargando) {
+        untracked(() => {
+          if (actividades.length > 0 && actividades[0].rango?.length >= 2) {
+            // Extraemos el número mínimo y máximo del arreglo rango
+            const min = Math.min(...actividades[0].rango);
+            const max = Math.max(...actividades[0].rango);
+            this.minRange.set(min);
+            this.maxRange.set(max);
+            this.generateChallenge(min, max);
+          } else if (!this.questionText()) {
+            this.generateChallenge();
+          }
+        });
+      }
+    });
+  }
+
   ngOnInit(): void {
-    this.generateChallenge();
+    // Cargamos las actividades de suma correspondientes al nivel 1 al iniciar el componente
+    this.activityService.cargarSumasPorNivel(1);
   }
 
   setMode(newMode: 'contar' | 'sumar'): void {
     this.mode.set(newMode);
-    this.generateChallenge();
+    // El cambio de modo proviene de un clic del usuario, por lo que sí puede hablar
+    this.generateChallenge(this.minRange(), this.maxRange(), true);
   }
 
-  generateChallenge(): void {
+  // Genera un nuevo reto; speakPrompt es false por defecto para no hablar automáticamente al cargar la página
+  generateChallenge(min = this.minRange(), max = this.maxRange(), speakPrompt = false): void {
     this.feedback.set('');
     this.countedSoFar = 0;
     const emoji = this.emojis[Math.floor(Math.random() * this.emojis.length)];
@@ -142,16 +173,21 @@ export class MathComponent implements OnInit {
       })));
       const prompt = '¿Cuántas figuritas mágicas hay en pantalla? Tócalas para contar.';
       this.questionText.set(prompt);
-      this.voice.speak(prompt);
+      if (speakPrompt) {
+        this.voice.speak(prompt);
+      }
     } else {
-      const a = Math.floor(Math.random() * 4) + 1;
-      const b = Math.floor(Math.random() * 4) + 1;
+      // Generación de los sumandos aleatorios dentro del rango [min, max]
+      const a = Math.floor(Math.random() * (max - min + 1)) + min;
+      const b = Math.floor(Math.random() * (max - min + 1)) + min;
       this.numA.set(a);
       this.numB.set(b);
       this.targetAnswer.set(a + b);
       const prompt = `¿Cuánto es ${a} más ${b}?`;
       this.questionText.set(prompt);
-      this.voice.speak(prompt);
+      if (speakPrompt) {
+        this.voice.speak(prompt);
+      }
     }
 
     const answer = this.targetAnswer();
@@ -185,7 +221,7 @@ export class MathComponent implements OnInit {
       this.feedback.set(`✨ ¡Muy bien ${child}! +2 ⭐`);
       this.voice.speak(msg);
       this.progress.addStars(2);
-      setTimeout(() => this.generateChallenge(), 2600);
+      setTimeout(() => this.generateChallenge(), 3800);
     } else {
       const msg = `Casi casi, ${child}. Contemos juntas otra vez con calma.`;
       this.feedback.set('🌸 ¡Inténtalo una vez más!');

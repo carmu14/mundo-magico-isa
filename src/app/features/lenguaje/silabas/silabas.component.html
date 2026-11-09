@@ -1,0 +1,75 @@
+<!-- Contenedor principal con diseño Flexbox centrado -->
+<div class="silabas-container">
+  <!-- Título grande y divertido -->
+  <h1 class="titulo-magico" (click)="escucharPalabra()">
+    🦄 ¡Armemos Palabras Mágicas! ✨
+  </h1>
+  <div class="pista-emoji" (click)="escucharPalabra()">
+    <span class="emoji-gigante">{{ emojiActual() }}</span>
+    <span class="subtitulo-audio">🔊 Toca aquí para escuchar la palabra</span>
+  </div>
+
+  @if (activityService.cargando()) {
+    <div class="zona-contenedor">
+      <p class="texto-guia">🌸 Preparando tus fichas mágicas...</p>
+    </div>
+  } @else {
+    <!-- Zona de 'Construcción': muestra las sílabas del array respuesta que la niña va seleccionando -->
+    <section class="zona-contenedor zona-construccion">
+      <h2 class="zona-titulo">🏰 Zona de Construcción</h2>
+      <div class="fichas-wrapper">
+        @if (respuesta().length === 0) {
+          <span class="texto-guia">Toca las fichas de abajo para formar la palabra 👇</span>
+        }
+        @for (silaba of respuesta(); track $index; let i = $index) {
+          <button
+            type="button"
+            class="ficha-btn ficha-construccion"
+            (click)="quitarSilaba(silaba, i)">
+            {{ silaba }}
+          </button>
+        }
+      </div>
+    </section>
+
+    <!-- Zona de 'Fichas': muestra las sílabas mezcladas del array opciones -->
+    <section class="zona-contenedor zona-fichas">
+      <h2 class="zona-titulo">🧩 Zona de Fichas</h2>
+      <div class="fichas-wrapper">
+        @for (silaba of opciones(); track $index; let i = $index) {
+          <button
+            type="button"
+            class="ficha-btn ficha-opcion"
+            (click)="seleccionarSilaba(silaba, i)">
+            {{ silaba }}
+          </button>
+        }
+      </div>
+    </section>
+
+    <!-- Botones de acción: Borrar y Verificar -->
+    <div class="acciones-wrapper">
+      <button
+        type="button"
+        class="accion-btn btn-borrar"
+        (click)="borrarRespuesta()">
+        🧹 Borrar
+      </button>
+      <button
+        type="button"
+        class="accion-btn btn-verificar"
+        [disabled]="respuesta().length === 0"
+        (click)="verificarRespuesta()">
+        🌟 Verificar
+      </button>
+    </div>
+
+    <!-- Mensaje de retroalimentación infantil -->
+    @if (mensaje()) {
+      <div class="mensaje-magico">
+        {{ mensaje() }}
+      </div>
+    }
+  }
+</div>
+

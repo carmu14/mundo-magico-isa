@@ -1,0 +1,202 @@
+/* Contenedor principal con Flexbox centrado y paleta pastel infantil */
+.silabas-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 24px 18px;
+  max-width: 640px;
+  margin: 0 auto;
+  text-align: center;
+  background: linear-gradient(145deg, rgba(255, 228, 242, 0.9), rgba(240, 225, 255, 0.9), rgba(255, 249, 219, 0.9));
+  border-radius: 28px;
+  box-shadow: 0 10px 25px rgba(180, 136, 235, 0.25);
+  border: 3px solid rgba(255, 182, 213, 0.8);
+}
+
+/* Título grande, divertido y en negrita */
+.titulo-magico {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #7b3fe4;
+  margin: 0;
+  text-shadow: 0 3px 0 rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+}
+
+.pista-emoji {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.78);
+  padding: 12px 24px;
+  border-radius: 24px;
+  border: 3px solid #ffd6e8;
+  cursor: pointer;
+  box-shadow: 0 6px 14px rgba(217, 70, 143, 0.15);
+}
+
+.emoji-gigante {
+  font-size: 3.4rem;
+  line-height: 1.1;
+}
+
+.subtitulo-audio {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #d9468f;
+}
+
+/* Zonas de contenedores con fondo semitransparente y bordes redondeados */
+.zona-contenedor {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.68);
+  backdrop-filter: blur(6px);
+  border-radius: 24px;
+  padding: 20px 16px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  box-shadow: inset 0 2px 8px rgba(179, 136, 235, 0.15), 0 6px 16px rgba(179, 136, 235, 0.12);
+}
+
+.zona-construccion {
+  border: 3px dashed #cda4ff;
+  background: rgba(246, 236, 255, 0.72);
+  min-height: 140px;
+}
+
+.zona-fichas {
+  border: 3px solid #ffc2d9;
+  background: rgba(255, 240, 246, 0.72);
+  min-height: 140px;
+}
+
+.zona-titulo {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #6b3fa0;
+  margin: 0;
+}
+
+.fichas-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  min-height: 68px;
+  width: 100%;
+}
+
+.texto-guia {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #9b7bb8;
+}
+
+/* Botones de sílabas grandes estilo ficha 3D */
+.ficha-btn {
+  padding: 18px 28px;
+  min-width: 92px;
+  border-radius: 20px;
+  font-size: 1.75rem;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  user-select: none;
+}
+
+/* Ficha en la zona de opciones (rosa pastel) */
+.ficha-opcion {
+  background: #ffb3d1;
+  color: #6d1b4b;
+  border: 3px solid #ff85b3;
+  box-shadow: 0 7px 0 #e05a8e, 0 10px 18px rgba(224, 90, 142, 0.28);
+}
+
+/* Ficha en la zona de construcción (lila pastel) */
+.ficha-construccion {
+  background: #dec4ff;
+  color: #4a1e8a;
+  border: 3px solid #b388eb;
+  box-shadow: 0 7px 0 #8e5ec9, 0 10px 18px rgba(142, 94, 201, 0.28);
+}
+
+.ficha-btn:hover {
+  transform: translateY(-2px);
+}
+
+.ficha-btn:active {
+  transform: translateY(5px);
+  box-shadow: 0 2px 0 #8e5ec9, 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Contenedor y botones de Borrar y Verificar */
+.acciones-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.accion-btn {
+  padding: 16px 30px;
+  border-radius: 20px;
+  font-size: 1.35rem;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Botón Borrar en lila/rosa suave */
+.btn-borrar {
+  background: #f3d9fa;
+  color: #6b3fa0;
+  border: 3px solid #d0a9f5;
+  box-shadow: 0 6px 0 #a974e0, 0 8px 16px rgba(169, 116, 224, 0.25);
+}
+
+/* Botón Verificar en amarillo suave pastel */
+.btn-verificar {
+  background: #fff0a8;
+  color: #7a5200;
+  border: 3px solid #ffd166;
+  box-shadow: 0 6px 0 #e09f2d, 0 8px 16px rgba(224, 159, 45, 0.28);
+}
+
+.accion-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.accion-btn:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 #a974e0, 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.accion-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Banner de retroalimentación */
+.mensaje-magico {
+  background: rgba(255, 255, 255, 0.85);
+  border: 3px solid #ffd166;
+  border-radius: 20px;
+  padding: 14px 22px;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #d9468f;
+  box-shadow: 0 6px 14px rgba(255, 133, 162, 0.22);
+}
+

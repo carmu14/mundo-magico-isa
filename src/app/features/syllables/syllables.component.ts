@@ -1,7 +1,9 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, effect, untracked, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { VoiceService } from '../../core/services/voice.service';
 import { ProgressService } from '../../core/services/progress.service';
+// Importación del servicio de actividades para consultar lenguaje desde Firestore
+import { ActivityService } from '../../core/services/activity.service';
 
 interface WordCard {
   word: string;
@@ -80,8 +82,30 @@ interface WordCard {
 export class SyllablesComponent implements OnInit {
   private voice = inject(VoiceService);
   private progress = inject(ProgressService);
+  // Inyección del servicio de actividades para obtener las palabras desde Firestore
+  readonly activityService = inject(ActivityService);
 
-  private readonly cards: WordCard[] = [
+  // Mapa de emojis asociados a palabras comunes para ilustrar las tarjetas dinámicas
+  private readonly emojiMap: Record<string, string> = {
+    MARIPOSA: '🦋',
+    MESA: '🪑',
+    MONO: '🐵',
+    MAMA: '👩',
+    MANO: '✋',
+    PALOMA: '🕊️',
+    PELOTA: '⚽',
+    PAPA: '👨',
+    PATO: '🦆',
+    SAPO: '🐸',
+    SOPA: '🍲',
+    SOL: '☀️',
+    LUNA: '🌙',
+    LUPA: '🔍',
+    LOMA: '⛰️'
+  };
+
+  // Tarjetas locales de respaldo en caso de que aún no haya datos en Firestore
+  private readonly defaultCards: WordCard[] = [
     { word: 'MARIPOSA', syllable: 'MA', emoji: '🦋', options: ['MA', 'ME', 'MO'] },
     { word: 'MESA', syllable: 'ME', emoji: '🪑', options: ['MI', 'ME', 'MU'] },
     { word: 'MONO', syllable: 'MO', emoji: '🐵', options: ['MA', 'MO', 'MI'] },
@@ -91,6 +115,11 @@ export class SyllablesComponent implements OnInit {
     { word: 'LUNA', syllable: 'LU', emoji: '🌙', options: ['LA', 'LI', 'LU'] }
   ];
 
+  // Signal con las tarjetas activas del juego (inicia con las tarjetas por defecto)
+  readonly cards = signal<WordCard[]>(this.defaultCards);
+  // Signal opcional para almacenar el tamaño de cuadrícula cuando venga desde Firestore
+  readonly cuadricula = signal<number | undefined>(undefined);
+
   readonly syllableGroups = [
     { consonant: 'M', syllables: ['MA', 'ME', 'MI', 'MO', 'MU'] },
     { consonant: 'P', syllables: ['PA', 'PE', 'PI', 'PO', 'PU'] },
@@ -98,17 +127,57 @@ export class SyllablesComponent implements OnInit {
     { consonant: 'L', syllables: ['LA', 'LE', 'LI', 'LO', 'LU'] }
   ];
 
-  readonly current = signal<WordCard>(this.cards[0]);
+  readonly current = signal<WordCard>(this.defaultCards[0]);
   readonly activeGroupIndex = signal<number>(0);
 
+  constructor() {
+    // Efecto reactivo que escucha cuando actividadesLenguaje() recibe datos desde Firestore
+    effect(() => {
+      const actividades = this.activityService.actividadesLenguaje();
+      if (actividades.length > 0 && actividades[0].palabras?.length > 0) {
+        const actividad = actividades[0];
+        // Transformamos cada palabra del array 'palabras' en una tarjeta de sílabas
+        const nuevasTarjetas: WordCard[] = actividad.palabras.map((rawWord) => {
+          const word = rawWord.trim().toUpperCase();
+          const syllable = word.slice(0, 2);
+          const consonant = word[0] || 'M';
+          const vowels = ['A', 'E', 'I', 'O', 'U'];
+          const opts = new Set<string>([syllable]);
+          while (opts.size < 3) {
+            const randomVowel = vowels[Math.floor(Math.random() * vowels.length)];
+            opts.add(`${consonant}${randomVowel}`);
+          }
+          return {
+            word,
+            syllable,
+            emoji: this.emojiMap[word] ?? '✨',
+            options: Array.from(opts).sort()
+          };
+        });
+
+        // Actualizamos los Signals sin generar dependencias circulares en el effect
+        untracked(() => {
+          this.cards.set(nuevasTarjetas);
+          this.cuadricula.set(actividad.cuadricula);
+          this.nextCard();
+        });
+      }
+    });
+  }
+
   ngOnInit(): void {
+    // Consultamos las actividades de lenguaje de nivel 1 y operación 'silabas' en Firestore
+    this.activityService.cargarLenguajePorNivel(1, 'silabas');
     this.nextCard();
   }
 
-  nextCard(): void {
-    const pick = this.cards[Math.floor(Math.random() * this.cards.length)];
+  nextCard(hablar = false): void {
+    const lista = this.cards();
+    const pick = lista[Math.floor(Math.random() * lista.length)];
     this.current.set(pick);
-    this.voice.speak(`¿Con qué sílaba empieza la palabra ${pick.word.toLowerCase()}?`);
+    if (hablar) {
+      this.voice.speak(`¿Con qué sílaba empieza la palabra ${pick.word.toLowerCase()}?`);
+    }
   }
 
   speakCurrentWord(): void {
